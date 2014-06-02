@@ -1,8 +1,14 @@
 <?php
+/**
+ * get moneyforward csv data
+ *
+ * @author egmc
+ */
 require __DIR__ . "/vendor/autoload.php";
 use Goutte\Client;
 
 $login_url = 'https://moneyforward.com/users/sign_in';
+$csv_url = 'https://moneyforward.com/cf/csv';
 
 if ($argc < 3) {
 	die("usage: php $argv[0] your_id your_password (optional)date[yyyy-mm]" . PHP_EOL);
@@ -21,15 +27,15 @@ $params = [
 ];
 
 $client = new Client();
-
 $crawler = $client->request('GET', $login_url);
-
 $form = $crawler->selectButton('commit')->form();
-
-$crawler = $client->submit($form, array('user[email]' => $login_id, 'user[password]' => $password));
+$crawler = $client->submit($form, ['user[email]' => $login_id, 'user[password]' => $password]);
 
 $query = http_build_query($params);
-
-$client->request('GET', 'https://moneyforward.com/cf/csv?' . $query);
-
-echo $client->getResponse()->getContent();
+$client->followRedirects(false);
+$client->request('GET', "$csv_url?$query");
+if ($client->getResponse()->getStatus() == "200") {
+	echo $client->getResponse()->getContent();
+} else {
+	die("failed to get csv data" . PHP_EOL);
+}
