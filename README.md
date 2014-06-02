@@ -5,7 +5,7 @@ csv downloader for moneyforward
 
 ## require
 
-php5.3以上
+php5.4以上
 
 ## installation
 
