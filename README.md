@@ -18,7 +18,7 @@ php composer.phar install
 
 ## usage
 ```
-php get_mf_csv.php {id} {password} [target_dir]
+php get_mf_csv.php your_id your_password (optional)date[yyyy-mm]
 ```
 
 
