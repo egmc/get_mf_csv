@@ -29,7 +29,7 @@ $params = [
 $client = new Client();
 $crawler = $client->request('GET', $login_url);
 $form = $crawler->selectButton('commit')->form();
-$crawler = $client->submit($form, ['user[email]' => $login_id, 'user[password]' => $password]);
+$crawler = $client->submit($form, ['sign_in_session_service[email]' => "{$login_id}", 'sign_in_session_service[password]' => "{$password}"]);
 
 $query = http_build_query($params);
 $client->followRedirects(false);
