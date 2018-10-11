@@ -2,7 +2,8 @@
     "name": "egmc/get_mf_cvs",
     "description": "get money forward cvs data",
     "require": {
-        "fabpot/goutte": "~2.0"
+        "fabpot/goutte": "~2.0",
+        "j4mie/idiorm": "^1.5"
     },
     "authors": [
         {
