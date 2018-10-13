@@ -10,8 +10,6 @@ ORM::configure('mysql:host=localhost;dbname=mf');
 ORM::configure('username', 'root');
 ORM::configure('error_mode', PDO::ERRMODE_SILENT);
 
-$r = ORM::forTable('account_book')->find_many();
-
 $login_id = $argv[1];
 $password = $argv[2];
 $datetime = new DateTime();
