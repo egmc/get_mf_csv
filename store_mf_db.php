@@ -16,7 +16,7 @@ $login_id = $argv[1];
 $password = $argv[2];
 $datetime = new DateTime();
 if (isset($argv[3])) {
-	$datetime = new DateTime($argv[3]);
+    $datetime = new DateTime($argv[3]);
 }
 
 $csv_data = shell_exec("php get_mf_csv.php {$login_id} {$password} {$datetime->format('Y-m')}");
