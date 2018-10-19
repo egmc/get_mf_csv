@@ -5,9 +5,15 @@
  * @author egmc
  */
 require __DIR__ . "/vendor/autoload.php";
+use Symfony\Component\Yaml\Yaml;
 
-ORM::configure('mysql:host=localhost;dbname=mf');
-ORM::configure('username', 'root');
+$db_config = Yaml::parseFile(__DIR__ . "/conf/db.yaml");
+//var_dump($db_config);
+
+ORM::configure("mysql:host={$db_config['mysql']['host']};dbname={$db_config['mysql']['db']}");
+ORM::configure('username', $db_config['mysql']['user']);
+//ORM::configure('password', $db_config['mysql']['pass']);
+//ORM::configure('error_mode', PDO::ERRMODE_EXCEPTION);
 ORM::configure('error_mode', PDO::ERRMODE_SILENT);
 
 $login_id = $argv[1];
@@ -21,7 +27,7 @@ $csv_data = shell_exec("php get_mf_csv.php {$login_id} {$password} {$datetime->f
 $csv_data = mb_convert_encoding($csv_data, 'utf8', 'sjis-win');
 //var_dump($csv_data);
 $csv_list = explode("\n", str_replace(array("\r\n", "\r", "\n"), "\n", $csv_data));
-//var_dump($csv_list);
+var_dump($csv_list);
 $rows = ['calc', 'adate', 'note', 'amnt', 'serv', 'lctg', 'mctg', 'memo', 'transfer', 'mfid'];
 array_shift($csv_list);
 array_pop($csv_list);
