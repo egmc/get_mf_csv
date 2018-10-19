@@ -8,19 +8,22 @@ require __DIR__ . "/vendor/autoload.php";
 use Symfony\Component\Yaml\Yaml;
 
 $db_config = Yaml::parseFile(__DIR__ . "/conf/db.yaml");
-//var_dump($db_config);
+$mf_config = Yaml::parseFile(__DIR__ . "/conf/mf.yaml");
+
 
 ORM::configure("mysql:host={$db_config['mysql']['host']};dbname={$db_config['mysql']['db']}");
 ORM::configure('username', $db_config['mysql']['user']);
-//ORM::configure('password', $db_config['mysql']['pass']);
+if (isset($db_config['mysql']['pass'])) {
+    ORM::configure('password', $db_config['mysql']['pass']);
+}
 //ORM::configure('error_mode', PDO::ERRMODE_EXCEPTION);
 ORM::configure('error_mode', PDO::ERRMODE_SILENT);
 
-$login_id = $argv[1];
-$password = $argv[2];
+$login_id = $mf_config['mf']['user'];
+$password = $mf_config['mf']['pass'];
 $datetime = new DateTime();
-if (isset($argv[3])) {
-    $datetime = new DateTime($argv[3]);
+if (isset($argv[1])) {
+    $datetime = new DateTime($argv[1]);
 }
 
 $csv_data = shell_exec("php get_mf_csv.php {$login_id} {$password} {$datetime->format('Y-m')}");
