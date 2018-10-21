@@ -26,8 +26,8 @@ if (isset($argv[1])) {
     $datetime = new DateTime($argv[1]);
 }
 $now = new DateTime();
-
-$csv_data = shell_exec("php get_mf_csv.php {$login_id} {$password} {$datetime->format('Y-m')}");
+$cmd = "php " . __DIR__ ."/get_mf_csv.php {$login_id} {$password} {$datetime->format('Y-m')}";
+$csv_data = shell_exec($cmd);
 $csv_data = mb_convert_encoding($csv_data, 'utf8', 'sjis-win');
 $csv_list = explode("\n", str_replace(array("\r\n", "\r", "\n"), "\n", $csv_data));
 //var_dump($csv_list);
