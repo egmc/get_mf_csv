@@ -7,8 +7,8 @@
 require __DIR__ . "/vendor/autoload.php";
 use Symfony\Component\Yaml\Yaml;
 
-$db_config = Yaml::parseFile(__DIR__ . "/conf/db.yaml");
-$mf_config = Yaml::parseFile(__DIR__ . "/conf/mf.yaml");
+$db_config = Yaml::parse(file_get_contents(__DIR__ . "/conf/db.yaml"));
+$mf_config = Yaml::parse(file_get_contents(__DIR__ . "/conf/mf.yaml"));
 
 
 ORM::configure("mysql:host={$db_config['mysql']['host']};dbname={$db_config['mysql']['db']}");
