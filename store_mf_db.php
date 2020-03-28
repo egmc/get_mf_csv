@@ -22,6 +22,9 @@ ORM::configure('error_mode', PDO::ERRMODE_EXCEPTION);
 $login_id = $mf_config['mf']['user'];
 $password = $mf_config['mf']['pass'];
 
+$now = new DateTime();
+
+
 $cols = ['calc', 'adate', 'note', 'amnt', 'serv', 'lctg', 'mctg', 'memo', 'transfer', 'mfid'];
 
 $from_dir = realpath(__DIR__ . "/../get_mf_csv_headless/tmp");
@@ -54,7 +57,7 @@ foreach (glob($from_dir . "/*.csv") as $csv_path) {
             continue;
         }
         $drec = array_combine($cols, $crec);
-        continue;
+//        continue;
 
         $counts['rec']++;
 
