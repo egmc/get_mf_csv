@@ -21,54 +21,76 @@ ORM::configure('error_mode', PDO::ERRMODE_EXCEPTION);
 
 $login_id = $mf_config['mf']['user'];
 $password = $mf_config['mf']['pass'];
-$datetime = new DateTime();
-if (isset($argv[1])) {
-    $datetime = new DateTime($argv[1]);
-}
-$now = new DateTime();
-$cmd = "php " . __DIR__ ."/get_mf_csv.php {$login_id} {$password} {$datetime->format('Y-m')}";
-$csv_data = shell_exec($cmd);
-$csv_data = mb_convert_encoding($csv_data, 'utf8', 'sjis-win');
-$csv_list = explode("\n", str_replace(array("\r\n", "\r", "\n"), "\n", $csv_data));
-//var_dump($csv_list);
+
 $cols = ['calc', 'adate', 'note', 'amnt', 'serv', 'lctg', 'mctg', 'memo', 'transfer', 'mfid'];
-array_shift($csv_list);
-foreach ($csv_list as $row) {
-    if (!$row) {
-        continue;
-    }
-    $crec = str_getcsv($row);
-    if (count($crec) !== count($cols)) {
-        echo "cols count not match : {$row}";
-        continue;
-    }
-    $drec = array_combine($cols, $crec);
 
-    $orm = ORM::for_table('account_book');
-    $dobj = $orm->whereEqual('mfid', $drec['mfid'])->findOne();
-    if ($dobj) {
-        $updated = false;
-        foreach ($cols as $k) {
-            if ($k == 'adate') {
-                continue;
-            }
-            if ($dobj[$k] != $drec[$k]) {
-                echo "$k is updated\n";
-                $updated = true;
-                break;
-            }
+$from_dir = realpath(__DIR__ . "/../get_mf_csv_headless/tmp");
+
+$counts = [
+    'row' => 0,
+    'rec' => 0,
+    'updated' => 0,
+    'created' => 0,
+];
+
+foreach (glob($from_dir . "/*.csv") as $csv_path) {
+
+    $csv_data = file_get_contents($csv_path);
+    $csv_data = mb_convert_encoding($csv_data, 'utf8', 'sjis-win');
+    $csv_list = explode("\n", str_replace(array("\r\n", "\r", "\n"), "\n", $csv_data));
+    foreach ($csv_list as $row) {
+        if (!$row) {
+            continue;
         }
-        if ($updated) {
-            $dobj->set($drec);
-            $dobj->set('updated', $now->format('Y-m-d H:i:s'));
-            $dobj->save();
+        $counts['row']++;
+
+        $crec = str_getcsv($row);
+        if (count($crec) !== count($cols)) {
+            echo "cols count not match : {$row}";
+            continue;
         }
-    } else {
-        $account = $orm->create();
-        $account->set($drec);
-        $account->set('updated', $now->format('Y-m-d H:i:s'));
-        $account->set(['created' => $now->format('Y-m-d H:i:s')]);
-        $account->save();
+        if (!preg_match('/[0-9]/',$crec[0])) {
+//            echo "not data row\n";
+            continue;
+        }
+        $drec = array_combine($cols, $crec);
+        continue;
+
+        $counts['rec']++;
+
+        $orm = ORM::for_table('account_book');
+        $dobj = $orm->whereEqual('mfid', $drec['mfid'])->findOne();
+        if ($dobj) {
+            $updated = false;
+            foreach ($cols as $k) {
+                if ($k == 'adate') {
+                    continue;
+                }
+                if ($dobj[$k] != $drec[$k]) {
+                    echo "$k is updated\n";
+                    $updated = true;
+                    break;
+                }
+            }
+            if ($updated) {
+                $dobj->set($drec);
+                $dobj->set('updated', $now->format('Y-m-d H:i:s'));
+                $dobj->save();
+                $counts['updated']++;
+            }
+        } else {
+            $account = $orm->create();
+            $account->set($drec);
+            $account->set('updated', $now->format('Y-m-d H:i:s'));
+            $account->set(['created' => $now->format('Y-m-d H:i:s')]);
+            $account->save();
+            $counts['created']++;
+        }
+
     }
+
 
 }
+
+var_dump($counts);
+
